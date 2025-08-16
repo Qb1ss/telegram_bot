@@ -1,11 +1,26 @@
 import re
 import sqlite3
 from telebot import TeleBot, types
-from config import TOKEN, ADMIN_ID
+from config import (
+    TOKEN, ADMIN_ID,
+    TEST_MODE, CURRENCY, COURSE, MIN_EXCHANGE_VALUE, MAX_EXCHANGE_VALUE,
+    TEXT_START, INFO_START, TEXT_ERROR_COUNT, TEXT_EMAIL, TEXT_ERROR_EMAIL,
+    TEXT_ERROR_ACCOUNT,ACCOUNT_CHAR_COUNT, PHOTO_ID,
+    HEADER_ORDER_TEXT, ADDRESS_ORDER_TEXT, WARNING_ORDER_TEXT)
+from datetime import datetime
+import random
 
 
 bot = TeleBot(TOKEN)
+sum_user_count = 0
+user_count = 0
+user_account = ""
 
+offer_order_text = f"Please send <b>exactly {user_count}. а USDT (TRC-20)</b> to the address below.\n\n"
+user_account_text = f"You will receive: <b>{sum_user_count * COURSE} TRX</b>\nTo your wallet:\n<code>{user_account}</code>\n\n"
+
+now = datetime.now()
+print(f'The bot restarted at {now}')
 
 # ==== БАЗА ДАННЫХ ====
 def init_db():
@@ -64,7 +79,7 @@ def clear_user_data(user_id):
     conn.close()
 
 
-# ==== УТИЛИТЫ ====
+# ==== УТИЛИТЫ ===
 def reset_user(message, text="Анкета сброшена"):
     clear_user_data(message.chat.id)
     try:
@@ -77,46 +92,59 @@ def reset_user(message, text="Анкета сброшена"):
 
 # ==== АНКЕТА ====
 def start_flow(message):
-    if message.chat.id == ADMIN_ID:
-        bot.send_message(ADMIN_ID, "Администратор не заполняет анкету.")
-        return
+    #if message.chat.id == ADMIN_ID:
+    #    bot.send_message(ADMIN_ID, "Администратор не заполняет анкету.")
+    #    return
+
     reset_user(message, text="")
-    bot.send_message(message.chat.id, "Начнем заполнение анкеты", reply_markup=types.ReplyKeyboardRemove())
-    snt_msg = bot.send_message(message.chat.id, "Введите число в квадрате (от 20 до 150):")
+
+    if message.chat.id == ADMIN_ID:
+        text_start = INFO_START + TEXT_START
+
+
+    text_start = TEXT_START
+    snt_msg = bot.send_message(message.chat.id, text_start, parse_mode="HTML")
     bot.register_next_step_handler(snt_msg, step_digits)
 
 
 def step_digits(message):
     if not message.text or not message.text.isdigit():
-        sent = bot.send_message(message.chat.id, "Ошибка: Введите число в квадрате (от 20 до 150).")
+        sent = bot.send_message(message.chat.id, TEXT_ERROR_COUNT)
         bot.register_next_step_handler(sent, step_digits)
         return
     value = int(message.text)
-    if 20 <= value <= 150:
+    user_count = value
+    sum_user_count = value * COURSE
+
+    if MIN_EXCHANGE_VALUE <= value <= MAX_EXCHANGE_VALUE:
         set_field("digits", message.chat.id, value)
-        sent = bot.send_message(message.chat.id, "Введите ваш email:")
+        text_sum = f"✅Great! You are exchanging <b>{user_count} USDT.</b>\nYou will receive approximately: <b>{sum_user_count} {CURRENCY}.</b>\nPlease enter your emaiI address to continue."
+        sent = bot.send_message(message.chat.id, text_sum, parse_mode="HTML")
         bot.register_next_step_handler(sent, step_email)
     else:
-        sent = bot.send_message(message.chat.id, "Ошибка: введите число в квадрате (от 20 до 150).")
+        sent = bot.send_message(message.chat.id, TEXT_ERROR_COUNT)
         bot.register_next_step_handler(sent, step_digits)
 
 
 def step_email(message):
     if message.text and re.match(r"[^@]+@[^@]+\.[^@]+", message.text):
         set_field("email", message.chat.id, message.text)
-        sent = bot.send_message(message.chat.id, "Введите комментарий (минимум 10 символов):")
+        sent = bot.send_message(message.chat.id, TEXT_EMAIL)
         bot.register_next_step_handler(sent, step_comment)
     else:
-        sent = bot.send_message(message.chat.id, "Ошибка: введите ваш email:")
+        sent = bot.send_message(message.chat.id, TEXT_ERROR_EMAIL)
         bot.register_next_step_handler(sent, step_email)
 
 
 def step_comment(message):
-    if not message.text or len(message.text) < 10:
-        sent = bot.send_message(message.chat.id, "Ошибка: Комментарий слишком короткий")
+    if not message.text or len(message.text) < ACCOUNT_CHAR_COUNT:
+        sent = bot.send_message(message.chat.id, TEXT_ERROR_ACCOUNT)
         bot.register_next_step_handler(sent, step_comment)
         return
     set_field("comment", message.chat.id, message.text)
+    user_account = message.text
+
+    order_text = HEADER_ORDER_TEXT + offer_order_text + ADDRESS_ORDER_TEXT + user_account_text + WARNING_ORDER_TEXT
 
     # Получаем данные пользователя
     data = get_user_data(message.chat.id)
@@ -126,11 +154,11 @@ def step_comment(message):
     bot.send_message(ADMIN_ID, f"📩 Новая заявка:\nЧисло: {digits}²\nEmail: {email}\nКомментарий: {comment}")
 
     # Отправляем фото от бота пользователю (здесь нужно указать file_id заранее)
-    BOT_PHOTO_ID = "https://static-cse.canva.com/blob/685034/vk1484.png"
-    bot.send_photo(message.chat.id, BOT_PHOTO_ID)
+
+    bot.send_photo(message.chat.id, PHOTO_ID)
 
     # Сообщение пользователю
-    bot.send_message(message.chat.id, "✅ Ваша заявка отправлена! Спасибо за регистрацию.",
+    bot.send_message(message.chat.id, order_text, parse_mode="HTML",
                      reply_markup=types.ReplyKeyboardRemove())
 
     # Предлагаем заполнить снова
@@ -166,9 +194,10 @@ def show_all(message):
 @bot.message_handler(commands=["start", "restart"])
 def start_cmd(message):
     if message.chat.id == ADMIN_ID:
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add("Показать заявки")
-        bot.send_message(ADMIN_ID, "Добро пожаловать, админ!", reply_markup=markup)
+        if TEST_MODE == False:
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            markup.add("Показать заявки")
+            bot.send_message(ADMIN_ID, "Добро пожаловать, админ!", reply_markup=markup)
     else:
         start_flow(message)
 
