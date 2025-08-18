@@ -1,22 +1,22 @@
 import re
 import sqlite3
+
+from pygments.lexers import markup
 from telebot import TeleBot, types
 from config import (
     TOKEN, ADMIN_ID,
     TEST_MODE, CURRENCY, MIN_EXCHANGE_VALUE, MAX_EXCHANGE_VALUE,
     TEXT_START, INFO_START, TEXT_ERROR_COUNT, TEXT_EMAIL, TEXT_ERROR_EMAIL,
-    TEXT_ERROR_ACCOUNT,ACCOUNT_CHAR_COUNT, PHOTO_ID,
+    TEXT_ERROR_ACCOUNT,ACCOUNT_CHAR_COUNT, PHOTO_ID, ORDER_NUMBER,
     HEADER_ORDER_TEXT, ADDRESS_ORDER_TEXT, WARNING_ORDER_TEXT)
 from course import  COURSE_TOKEN
-from datetime import datetime
 
 bot = TeleBot(TOKEN)
 sum_user_count = 0
 user_count = 0
 user_account = ""
 
-now = datetime.now()
-print(f'The bot restarted at {now}: Course - {COURSE_TOKEN}')
+print(f'The bot restarted. Course - {COURSE_TOKEN}')
 
 # ==== БАЗА ДАННЫХ ====
 def init_db():
@@ -88,15 +88,10 @@ def reset_user(message, text="Анкета сброшена"):
 
 # ==== АНКЕТА ====
 def start_flow(message):
-    #if message.chat.id == ADMIN_ID:
-    #    bot.send_message(ADMIN_ID, "Администратор не заполняет анкету.")
-    #    return
-
     reset_user(message, text="")
 
     if message.chat.id == ADMIN_ID:
         text_start = INFO_START + TEXT_START
-
 
     text_start = TEXT_START
     snt_msg = bot.send_message(message.chat.id, text_start, parse_mode="HTML")
@@ -109,12 +104,12 @@ def step_digits(message):
         bot.register_next_step_handler(sent, step_digits)
         return
     value = int(message.text)
-    user_count = value
-    sum_user_count = value * COURSE_TOKEN
+    user_count = float(value)
+    sum_user_count = user_count * COURSE_TOKEN
 
     if MIN_EXCHANGE_VALUE <= value <= MAX_EXCHANGE_VALUE:
         set_field("digits", message.chat.id, value)
-        text_sum = f"✅Great! You are exchanging <b>{user_count} USDT.</b>\nYou will receive approximately: <b>{sum_user_count} {CURRENCY}.</b>\nPlease enter your emaiI address to continue."
+        text_sum = f"✅Great! You are exchanging <b>{value} USDT.</b>\nYou will receive approximately: <b>{sum_user_count} {CURRENCY}.</b>\nPlease enter your emaiI address to continue."
         sent = bot.send_message(message.chat.id, text_sum, parse_mode="HTML")
         bot.register_next_step_handler(sent, step_email)
     else:
@@ -131,7 +126,6 @@ def step_email(message):
         sent = bot.send_message(message.chat.id, TEXT_ERROR_EMAIL)
         bot.register_next_step_handler(sent, step_email)
 
-
 def step_comment(message):
     if not message.text or len(message.text) < ACCOUNT_CHAR_COUNT:
         sent = bot.send_message(message.chat.id, TEXT_ERROR_ACCOUNT)
@@ -143,25 +137,50 @@ def step_comment(message):
     data = get_user_data(message.chat.id)
     digits, email, comment = data
 
-    order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE_TOKEN} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
-
     # Отправляем админу
-    bot.send_message(ADMIN_ID, f"📩 Новая заявка:\nЧисло: {digits}²\nEmail: {email}\nКомментарий: {comment}")
-
-    # Отправляем фото от бота пользователю (здесь нужно указать file_id заранее)
+    #bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}²\nEmail: {email}\nAddress: {comment}")
 
     bot.send_photo(message.chat.id, PHOTO_ID)
 
-    # Сообщение пользователю
-    bot.send_message(message.chat.id, order_text, parse_mode="HTML",
-                     reply_markup=types.ReplyKeyboardRemove())
+    order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE_TOKEN} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
 
-    # Предлагаем заполнить снова
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Заполнить снова")
-    sent = bot.send_message(message.chat.id, "Хотите заполнить анкету снова?", reply_markup=markup)
-    bot.register_next_step_handler(sent, wait_restart)
+    markup = types.InlineKeyboardMarkup()
+    button_paid = types.InlineKeyboardButton("✅I have paid", callback_data='paid')
+    button_cancel = types.InlineKeyboardButton("❌Cancel Order", callback_data='cancel')
+    markup.row(button_paid, button_cancel)
 
+    bot.send_message(message.chat.id, order_text, parse_mode="HTML",reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda callback: True)
+def callback_message(callback):
+    chat = callback.message.chat.id
+    if callback.data == "paid":
+        print("paid")
+
+        bot.send_message(chat, f"✅Thank you! We are now verifying your payment. You will receive a notification shortly.",parse_mode="HTML")
+
+        markup = types.InlineKeyboardMarkup()
+        button_new_order = types.InlineKeyboardButton('🚀Create new order', callback_data='restart')
+        #markup.row(button_new_order)
+
+
+        #data = get_user_data(call.chat.id)
+        #digits, email, comment = data
+
+        #bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}²\nEmail: {email}\nAddress: {comment}")
+
+    elif call.data == "cancel":
+        print("cancel")
+        #markup = types.InlineKeyboardMarkup()
+
+        #button_new_order = types.InlineKeyboardButton("🚀Create new order", callback_data='restart')
+        #markup.row(button_new_order)
+
+        #bot.send_message(chat, f"❌Order #{ORDER_NUMBER} has been cancelled by you.",parse_mode="HTML", reply_markup=markup)
+
+    elif call.data == "restart":
+        print("restart")
+        #start_flow(call.message)
 
 def wait_restart(message):
     if message.text and message.text.strip().lower() == "заполнить снова":

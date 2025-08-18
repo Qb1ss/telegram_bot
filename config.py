@@ -27,9 +27,9 @@ TEXT_EMAIL = "✅Great! Now, please enter your TRX wallet address (the one that 
 TEXT_ERROR_EMAIL = f"Error: Enter your Email address."
 TEXT_ERROR_ACCOUNT = f"Error: your account is too short."
 
-order_number = random.randint(30, 2300)
+ORDER_NUMBER = random.randint(30, 2300)
 
-HEADER_ORDER_TEXT = f"<b>✅Your Exchange Order #{order_number} is Ready!✅</b>\n\n"
+HEADER_ORDER_TEXT = f"<b>✅Your Exchange Order #{ORDER_NUMBER} is Ready!✅</b>\n\n"
 address_order_text = f"<code>01234567890</code>\n\n"
 description_order_text = "<b>👇Deposit Address:👇</b>\n"
 ADDRESS_ORDER_TEXT = description_order_text + address_order_text
