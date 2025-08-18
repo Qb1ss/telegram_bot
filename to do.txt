@@ -1,5 +1,4 @@
 Check list:
-- random course
 - checking to see if the new order is larger than the previous one
 - buttons in the order message
 - deleting old messages
@@ -7,3 +6,4 @@ Check list:
 - a message that the order is ends every 5 minutes
 - adding our account
 - tech support
+- delete russian language

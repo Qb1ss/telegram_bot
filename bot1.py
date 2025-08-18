@@ -7,7 +7,7 @@ from config import (
     TEXT_START, INFO_START, TEXT_ERROR_COUNT, TEXT_EMAIL, TEXT_ERROR_EMAIL,
     TEXT_ERROR_ACCOUNT,ACCOUNT_CHAR_COUNT, PHOTO_ID,
     HEADER_ORDER_TEXT, ADDRESS_ORDER_TEXT, WARNING_ORDER_TEXT)
-from  course import  COURSE
+from course import  COURSE_TOKEN
 from datetime import datetime
 
 bot = TeleBot(TOKEN)
@@ -16,7 +16,7 @@ user_count = 0
 user_account = ""
 
 now = datetime.now()
-print(f'The bot restarted at {now}: Course - {COURSE}')
+print(f'The bot restarted at {now}: Course - {COURSE_TOKEN}')
 
 # ==== БАЗА ДАННЫХ ====
 def init_db():
@@ -110,7 +110,7 @@ def step_digits(message):
         return
     value = int(message.text)
     user_count = value
-    sum_user_count = value * COURSE
+    sum_user_count = value * COURSE_TOKEN
 
     if MIN_EXCHANGE_VALUE <= value <= MAX_EXCHANGE_VALUE:
         set_field("digits", message.chat.id, value)
@@ -143,7 +143,7 @@ def step_comment(message):
     data = get_user_data(message.chat.id)
     digits, email, comment = data
 
-    order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
+    order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE_TOKEN} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
 
     # Отправляем админу
     bot.send_message(ADMIN_ID, f"📩 Новая заявка:\nЧисло: {digits}²\nEmail: {email}\nКомментарий: {comment}")

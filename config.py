@@ -1,5 +1,6 @@
 import random
 
+from course import COURSE_TOKEN, SPRADE_RANGE
 
 #ТОКЕНЫ
 TOKEN = "7891535798:AAGUtwq5OScPeG6pPP0j3IVx4EQDCA9SvC8"
@@ -20,7 +21,7 @@ ADMIN_ID = 1049864117
 # мой аккаунт - 1049864117
 
 #ТЕКСТОВЫЕ СООБЩЕНИЯ
-TEXT_START = "📊🔥<b>Your special bonus rate is active! (+7%)</b>\nYou have 5 bonus exchanges left.\n\nYour personal rate: <b>1 USDT ≈ 3.1413 TRX</b>💰\n\nPlease enter the amount of USDT (TRC-20) you want to exchange.\n\n<b>Limits:</b>\n- Minimum: <em>20 USDT</em>\n- Maximum: <em>1500 USDT</em>"
+TEXT_START = f"📊🔥<b>Your special bonus rate is active! (+{SPRADE_RANGE}%)</b>\nYou have 5 bonus exchanges left.\n\nYour personal rate: <b>1 USDT ≈ {COURSE_TOKEN} {CURRENCY}</b>💰\n\nPlease enter the amount of USDT (TRC-20) you want to exchange.\n\n<b>Limits:</b>\n- Minimum: <em>{MIN_EXCHANGE_VALUE} USDT</em>\n- Maximum: <em>{MAX_EXCHANGE_VALUE} USDT</em>"
 TEXT_ERROR_COUNT = f"Error: Enter the available amount (from {MIN_EXCHANGE_VALUE} to {MAX_EXCHANGE_VALUE})."
 TEXT_EMAIL = "✅Great! Now, please enter your TRX wallet address (the one that starts with 'T')."
 TEXT_ERROR_EMAIL = f"Error: Enter your Email address."
