@@ -1,5 +1,4 @@
 Check list:
-- buttons in the order message
 - deleting old messages
 - add timer. If less that 1 minute has passed, the error is "The transfer was not completed". If 1-3 minnutes have passed? the warning message is "The transfer is being progress". If more that 3 minutes have passed, the message "Success, please wait for the funds to be order"
 - a message that the order is ends every 5 minutes

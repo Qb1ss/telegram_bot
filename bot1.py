@@ -133,13 +133,6 @@ def step_comment(message):
         return
     set_field("comment", message.chat.id, message.text)
 
-    # Получаем данные пользователя
-    data = get_user_data(message.chat.id)
-    digits, email, comment = data
-
-    # Отправляем админу
-    #bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}²\nEmail: {email}\nAddress: {comment}")
-
     bot.send_photo(message.chat.id, PHOTO_ID)
 
     order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE_TOKEN} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
@@ -155,32 +148,24 @@ def step_comment(message):
 def callback_message(callback):
     chat = callback.message.chat.id
     if callback.data == "paid":
-        print("paid")
-
-        bot.send_message(chat, f"✅Thank you! We are now verifying your payment. You will receive a notification shortly.",parse_mode="HTML")
-
         markup = types.InlineKeyboardMarkup()
         button_new_order = types.InlineKeyboardButton('🚀Create new order', callback_data='restart')
-        #markup.row(button_new_order)
+        markup.row(button_new_order)
+        bot.send_message(chat, f"✅Thank you! We are now verifying your payment. You will receive a notification shortly.",parse_mode="HTML", reply_markup=markup)
 
+        data = get_user_data(chat)
+        digits, email, comment = data
 
-        #data = get_user_data(call.chat.id)
-        #digits, email, comment = data
+        bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}²\nEmail: {email}\nAddress: {comment}")
 
-        #bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}²\nEmail: {email}\nAddress: {comment}")
+    elif callback.data == "cancel":
+        markup = types.InlineKeyboardMarkup()
+        button_new_order = types.InlineKeyboardButton("🚀Create new order", callback_data='restart')
+        markup.row(button_new_order)
+        bot.send_message(chat, f"❌Order #{ORDER_NUMBER} has been cancelled by you.",parse_mode="HTML", reply_markup=markup)
 
-    elif call.data == "cancel":
-        print("cancel")
-        #markup = types.InlineKeyboardMarkup()
-
-        #button_new_order = types.InlineKeyboardButton("🚀Create new order", callback_data='restart')
-        #markup.row(button_new_order)
-
-        #bot.send_message(chat, f"❌Order #{ORDER_NUMBER} has been cancelled by you.",parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "restart":
-        print("restart")
-        #start_flow(call.message)
+    elif callback.data == "restart":
+        start_flow(callback.message)
 
 def wait_restart(message):
     if message.text and message.text.strip().lower() == "заполнить снова":
