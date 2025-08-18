@@ -16,9 +16,6 @@ sum_user_count = 0
 user_count = 0
 user_account = ""
 
-offer_order_text = f"Please send <b>exactly {user_count}. а USDT (TRC-20)</b> to the address below.\n\n"
-user_account_text = f"You will receive: <b>{sum_user_count * COURSE} TRX</b>\nTo your wallet:\n<code>{user_account}</code>\n\n"
-
 now = datetime.now()
 print(f'The bot restarted at {now}')
 
@@ -142,13 +139,12 @@ def step_comment(message):
         bot.register_next_step_handler(sent, step_comment)
         return
     set_field("comment", message.chat.id, message.text)
-    user_account = message.text
-
-    order_text = HEADER_ORDER_TEXT + offer_order_text + ADDRESS_ORDER_TEXT + user_account_text + WARNING_ORDER_TEXT
 
     # Получаем данные пользователя
     data = get_user_data(message.chat.id)
     digits, email, comment = data
+
+    order_text = HEADER_ORDER_TEXT + f"Please send <b>exactly {digits}. а USDT (TRC-20)</b> to the address below.\n\n" + ADDRESS_ORDER_TEXT + WARNING_ORDER_TEXT + f"You will receive: <b>{digits * COURSE} TRX</b>\nTo your wallet:\n<code>{comment}</code>\n\n"
 
     # Отправляем админу
     bot.send_message(ADMIN_ID, f"📩 Новая заявка:\nЧисло: {digits}²\nEmail: {email}\nКомментарий: {comment}")

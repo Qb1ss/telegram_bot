@@ -1,5 +1,4 @@
 Check list:
-- fix the bag in the order message
 - random course
 - checking to see if the new order is larger than the previous one
 - buttons in the order message
