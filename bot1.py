@@ -3,13 +3,12 @@ import sqlite3
 from telebot import TeleBot, types
 from config import (
     TOKEN, ADMIN_ID,
-    TEST_MODE, CURRENCY, COURSE, MIN_EXCHANGE_VALUE, MAX_EXCHANGE_VALUE,
+    TEST_MODE, CURRENCY, MIN_EXCHANGE_VALUE, MAX_EXCHANGE_VALUE,
     TEXT_START, INFO_START, TEXT_ERROR_COUNT, TEXT_EMAIL, TEXT_ERROR_EMAIL,
     TEXT_ERROR_ACCOUNT,ACCOUNT_CHAR_COUNT, PHOTO_ID,
     HEADER_ORDER_TEXT, ADDRESS_ORDER_TEXT, WARNING_ORDER_TEXT)
+from  course import  COURSE
 from datetime import datetime
-import random
-
 
 bot = TeleBot(TOKEN)
 sum_user_count = 0
@@ -17,7 +16,7 @@ user_count = 0
 user_account = ""
 
 now = datetime.now()
-print(f'The bot restarted at {now}')
+print(f'The bot restarted at {now}: Course - {COURSE}')
 
 # ==== БАЗА ДАННЫХ ====
 def init_db():
