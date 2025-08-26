@@ -3,9 +3,7 @@ import random
 from course import COURSE_TOKEN, SPRADE_RANGE
 
 #ТОКЕНЫ
-TOKEN = "7891535798:AAGUtwq5OScPeG6pPP0j3IVx4EQDCA9SvC8"
-#тестовый аккаунт (Тест тест)- 7502925852:AAGaTxKlJQNLjni_wxMW5fUt3FI4LQsGjMM
-#тестовый аккаунт (Prospect Parsing News) - 7891535798:AAGUtwq5OScPeG6pPP0j3IVx4EQDCA9SvC8
+TOKEN = "8247152397:AAGIgsi1EGu-7l-VHCXubmMPs3kgbuRXB7Y"
 
 #НАСТРОЙКИ
 CURRENCY = "TRX"
@@ -16,9 +14,7 @@ ACCOUNT_CHAR_COUNT = 3
 PHOTO_ID = "https://static-cse.canva.com/blob/685034/vk1484.png"
 
 #АДМИНЫ
-ADMIN_ID = 1049864117
-# блокировочный - 0000000000
-# мой аккаунт - 1049864117
+ADMIN_ID = 7853896960
 
 #ТЕКСТОВЫЕ СООБЩЕНИЯ
 TEXT_START = f"📊🔥<b>Your special bonus rate is active! (+{SPRADE_RANGE}%)</b>\nYou have 5 bonus exchanges left.\n\nYour personal rate: <b>1 USDT ≈ {COURSE_TOKEN} {CURRENCY}</b>💰\n\nPlease enter the amount of USDT (TRC-20) you want to exchange.\n\n<b>Limits:</b>\n- Minimum: <em>{MIN_EXCHANGE_VALUE} USDT</em>\n- Maximum: <em>{MAX_EXCHANGE_VALUE} USDT</em>"
