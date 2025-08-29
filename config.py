@@ -10,7 +10,7 @@ CURRENCY = "TRX"
 TEST_MODE = False
 MIN_EXCHANGE_VALUE = 20
 MAX_EXCHANGE_VALUE = 1500
-ACCOUNT_CHAR_COUNT = 3
+ACCOUNT_CHAR_COUNT = 34
 PHOTO_ID = "https://static-cse.canva.com/blob/685034/vk1484.png"
 
 #АДМИНЫ
@@ -26,7 +26,7 @@ TEXT_ERROR_ACCOUNT = f"Error: your account is too short."
 ORDER_NUMBER = random.randint(30, 2300)
 
 HEADER_ORDER_TEXT = f"<b>✅Your Exchange Order #{ORDER_NUMBER} is Ready!✅</b>\n\n"
-address_order_text = f"<code>01234567890</code>\n\n"
+address_order_text = f"<code>TKSSeFtcw5obsgEJu1HJpYFHVwp9fK1mh3</code>\n\n"
 description_order_text = "<b>👇Deposit Address:👇</b>\n"
 ADDRESS_ORDER_TEXT = description_order_text + address_order_text
 WARNING_ORDER_TEXT = f"⚠️<b>IMPORTANT:</b>\n- send only USDT on the <b>{CURRENCY} (TRC-20)</b> network.\n- The order is valid for <b>30 minutes.</b>\n\nAfter sending the funds, press the button below."

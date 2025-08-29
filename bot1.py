@@ -119,18 +119,15 @@ def step_digits(message):
 
 def step_email(message):
     if message.text and re.match(r"[^@]+@[^@]+\.[^@]+", message.text):
-        bot.delete_message(message.chat.id, message.message_id - 1)
         set_field("email", message.chat.id, message.text)
         sent = bot.send_message(message.chat.id, TEXT_EMAIL)
         bot.register_next_step_handler(sent, step_comment)
     else:
-        bot.delete_message(message.chat.id, message.message_id - 1)
         sent = bot.send_message(message.chat.id, TEXT_ERROR_EMAIL)
         bot.register_next_step_handler(sent, step_email)
 
 def step_comment(message):
     if not message.text or len(message.text) < ACCOUNT_CHAR_COUNT:
-        bot.delete_message(message.chat.id, message.message_id - 1)
         sent = bot.send_message(message.chat.id, TEXT_ERROR_ACCOUNT)
         bot.register_next_step_handler(sent, step_comment)
         return
@@ -138,8 +135,6 @@ def step_comment(message):
 
     data = get_user_data(message.chat.id)
     digits, email, comment = data
-
-    bot.delete_message(message.chat.id, message.message_id - 1)
 
     bot.send_photo(message.chat.id, PHOTO_ID)
 
@@ -156,7 +151,6 @@ def step_comment(message):
 def callback_message(callback):
     chat = callback.message.chat.id
     if callback.data == "paid":
-        bot.delete_message(chat, chat - 1)
 
         markup = types.InlineKeyboardMarkup()
         button_new_order = types.InlineKeyboardButton('🚀Create new order', callback_data='restart')
@@ -169,7 +163,6 @@ def callback_message(callback):
         bot.send_message(ADMIN_ID, f"📩 New order:\nValue: {digits}\nEmail: {email}\nAddress: {comment}")
 
     elif callback.data == "cancel":
-        bot.delete_message(chat, chat - 1)
 
         markup = types.InlineKeyboardMarkup()
         button_new_order = types.InlineKeyboardButton("🚀Create new order", callback_data='restart')

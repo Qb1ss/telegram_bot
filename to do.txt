@@ -1,5 +1,4 @@
 Check list:
-- adding our account
 - tech support
 - delete russian language
 
